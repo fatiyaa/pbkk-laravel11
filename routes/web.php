@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 Use App\Models\User;
 
+use function Laravel\Prompts\search;
 
 Route::get('/', function () {
     return view('home', ['title' => 'Home Page']);
@@ -16,10 +17,8 @@ Route::get('/about', function () {
 });
 
 Route::get('/posts', function () {
-
-    // $posts = Post::with(['author', 'category'])->latest()->get();
-    $posts = Post::latest()->get();
-    return view('posts', ['title' => 'Blog', 'posts' => $posts]);
+    
+    return view('posts', ['title' => 'Blog', 'posts' => Post::filter(request(['search', 'category', 'author']))->latest()->get()]);
 });
 
 
@@ -27,24 +26,18 @@ Route::get('/posts/{post:slug}', function (Post $post) {
 
     return view('post', ['title' => 'Single Post', 'post' => $post] );
 
-    // return view('post', ['title' => 'Single Post']);
 });
 
 Route::get('/authors/{user:username}', function (User $user) {
-    // $posts = $user->posts->load(['author', 'category']);
 
     return view('posts', ['title' => count($user->posts) . ' Articles by ' . $user->name, 'posts' => $user->posts] );
 
-    // return view('post', ['title' => 'Single Post']);
 });
 
 Route::get('/categories/{category:slug}', function (Category $category) {
 
-    // $posts = $category->posts->load(['author', 'category']);
-
     return view('posts', ['title' => 'Articles in: ' . $category->name, 'posts' => $category->posts] );
 
-    // return view('post', ['title' => 'Single Post']);
 });
 
 Route::get('/contact', function () {
